@@ -13,7 +13,7 @@ private:
 
 public:
     Server(std::unique_ptr<ListeningSocket> listening_socket, std::unique_ptr<ConnectionHandler> connection_handler)
-            : _listening_socket(std::move(listening_socket)), _connection_handler(std::move(connection_handler)) {};
+            : _connection_handler(std::move(connection_handler)), _listening_socket(std::move(listening_socket)) {};
 
     void start();
 

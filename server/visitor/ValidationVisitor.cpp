@@ -44,8 +44,8 @@ void ValidationVisitor::visitRead(const ReadCommand &read_command) const {
     validateSingleMessageCommand(read_command.get_single_message_request(), "READ");
 }
 
-void ValidationVisitor::visitDelete(const DeleteCommand &delete_command) const {
-    validateSingleMessageCommand(delete_command.get_single_message_request(), "DEL");
+void ValidationVisitor::visitDelete(const DeleteCommand &delete_command) const  {
+    validateSingleMessageCommand(delete_command. get_single_message_request(), "DEL");
 }
 
 void ValidationVisitor::visitQuit(const QuitCommand &) const {}

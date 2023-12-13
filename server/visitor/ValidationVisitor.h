@@ -14,6 +14,7 @@ public:
 
     void visitQuit(const QuitCommand &quit_command) const override;
 
-    static void validateSingleMessageCommand(const SingleMessageRequest &message_request, const std::string& command_name);
+    static void
+    validateSingleMessageCommand(const SingleMessageRequest &message_request, const std::string &command_name);
 
 };

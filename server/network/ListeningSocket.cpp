@@ -2,18 +2,25 @@
 #include <netdb.h>
 #include <iostream>
 #include "stdexcept"
+#include "exceptions/NetworkError.h"
+#include "exceptions/InternalServerError.h"
 
 
 std::unique_ptr<ListeningSocket> ListeningSocket::fromPort(int port) {
-    struct addrinfo *socket_address = get_socket_address(port);
-    int socket_descriptor = socket(socket_address->ai_family, socket_address->ai_socktype, socket_address->ai_protocol);
-    int reuseValue = 1;
-    setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR, &reuseValue, sizeof(reuseValue));
-    setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEPORT, &reuseValue, sizeof(reuseValue));
-    std::unique_ptr<ListeningSocket> listening_socket = std::make_unique<ListeningSocket>(socket_descriptor,
-                                                                                          *socket_address->ai_addr);
-    freeaddrinfo(socket_address);
-    return listening_socket;
+    try {
+        struct addrinfo *socket_address = get_socket_address(port);
+        int socket_descriptor = socket(socket_address->ai_family, socket_address->ai_socktype,
+                                       socket_address->ai_protocol);
+        int reuseValue = 1;
+        setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR, &reuseValue, sizeof(reuseValue));
+        setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEPORT, &reuseValue, sizeof(reuseValue));
+        std::unique_ptr<ListeningSocket> listening_socket = std::make_unique<ListeningSocket>(socket_descriptor,
+                                                                                              *socket_address->ai_addr);
+        freeaddrinfo(socket_address);
+        return listening_socket;
+    } catch (const std::exception &exception) {
+        throw InternalServerError("Internal Server Error : could not create listening socket!");
+    }
 }
 
 void ListeningSocket::listen() {

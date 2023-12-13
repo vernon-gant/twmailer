@@ -20,15 +20,7 @@ file(GLOB_RECURSE SOURCES_SERVER "server/*.cpp")
 
 # Create executables for client and server
 add_executable(client ${SOURCES_CLIENT})
-add_executable(server ${SOURCES_SERVER}
-        server/utils/FileSystemUtils.h
-        server/exceptions/QuitException.h
-        server/exceptions/NetworkError.h
-        server/exceptions/InternalServerError.h
-        server/exceptions/ValidationError.h
-        server/command/DTO.h
-        server/network/UserContext.h
-        server/utils/Logger.h)
+add_executable(server ${SOURCES_SERVER})
 
 # Specify the output directories for binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)

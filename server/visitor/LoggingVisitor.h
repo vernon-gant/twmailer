@@ -2,7 +2,7 @@
 
 #include "CommandVisitor.h"
 
-class LoggingVisitor : public CommandVisitor{
+class LoggingVisitor : public CommandVisitor {
 private:
 
 public:

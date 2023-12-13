@@ -6,10 +6,16 @@
 #include "visitor/ValidationVisitor.h"
 #include "visitor/LoggingVisitor.h"
 #include "network/Server.h"
+#include "exceptions/InternalServerError.h"
 
 int main(int argc, char **argv) {
     Environment::Initialize(argc, argv);
-    std::unique_ptr<ListeningSocket> listening_socket = ListeningSocket::fromPort(Environment::PORT());
+    std::unique_ptr<ListeningSocket> listening_socket;
+    try {
+        listening_socket = ListeningSocket::fromPort(Environment::PORT());
+    } catch (const InternalServerError &error) {
+        std::cout << error.what() << std::endl;
+    }
     std::unique_ptr<CommandVisitor> validation_visitor = std::make_unique<ValidationVisitor>();
     std::unique_ptr<CommandVisitor> logging_visitor = std::make_unique<LoggingVisitor>();
     std::vector<std::unique_ptr<CommandVisitor>> visitors = std::vector<std::unique_ptr<CommandVisitor>>();

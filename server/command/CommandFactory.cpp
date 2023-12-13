@@ -87,7 +87,7 @@ SingleMessageRequest CommandFactory::create_single_message_request(const std::st
     try {
         message_request.message_number = message_number.empty() ? std::numeric_limits<int>::max() : std::stoi(
                 message_number);
-    } catch (const std::invalid_argument& exception) {
+    } catch (const std::invalid_argument &exception) {
         throw ValidationError("Validation error : invalid message number format - must be integer!");
     }
 

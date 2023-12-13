@@ -5,7 +5,7 @@
 #include "../visitor/CommandVisitor.h"
 #include "../command/CommanndPipeline.h"
 
-class VisitorPipeline : public CommandPipeline {
+class VisitorPipeline : public  CommandPipeline {
 
 private:
     std::vector<std::unique_ptr<CommandVisitor>> _visitors;

@@ -11,11 +11,12 @@ private:
 
     static const int QUEUE_SIZE = 20;
 
-    static addrinfo * get_socket_address(int port);
+    static addrinfo *get_socket_address(int port);
 
 public:
 
-    ListeningSocket(int socket_descriptor, struct sockaddr socket_address) : Socket(socket_descriptor, socket_address) {}
+    ListeningSocket(int socket_descriptor, struct sockaddr socket_address) : Socket(socket_descriptor,
+                                                                                    socket_address) {}
 
     static std::unique_ptr<ListeningSocket> fromPort(int port);
 

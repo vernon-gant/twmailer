@@ -2,7 +2,7 @@
 #include "exceptions/ValidationError.h"
 #include "exceptions/InternalServerError.h"
 
-std::string RequestHandler::handle(std::string &message, const UserContext &user_context) {
+std::string RequestHandler:: handle(std::string &message, const UserContext &user_context) {
     try {
         std::unique_ptr<Command> command = _command_parser->create(message, user_context);
         _command_pipeline->process(*command);

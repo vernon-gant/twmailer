@@ -17,4 +17,6 @@ public:
     virtual void visitDelete(const DeleteCommand &delete_command) const = 0;
 
     virtual void visitQuit(const QuitCommand &quit_command) const = 0;
+
+    virtual ~CommandVisitor() = default;
 };

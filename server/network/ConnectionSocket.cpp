@@ -49,7 +49,7 @@ std::string ConnectionSocket::receive() {
     return message;
 }
 
-const std::string& ConnectionSocket::get_client_ip_address() {
+const std::string &ConnectionSocket::get_client_ip_address() {
     return client_ip_address;
 }
 

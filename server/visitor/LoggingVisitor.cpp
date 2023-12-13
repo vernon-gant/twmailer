@@ -3,7 +3,8 @@
 
 void LoggingVisitor::visitList(const ListCommand &list_command) const {
     const auto &user_context = list_command.get_user_context();
-    std::cout << user_context.client_ip_address << "  #############  LIST command received - User: " << user_context.user_name
+    std::cout << user_context.client_ip_address << "  #############  LIST command received - User: "
+              << user_context.user_name
               << std::endl;
 }
 
@@ -37,6 +38,7 @@ void LoggingVisitor::visitDelete(const DeleteCommand &delete_command) const {
 
 void LoggingVisitor::visitQuit(const QuitCommand &quit_command) const {
     const auto &user_context = quit_command.get_user_context();
-    std::cout << user_context.client_ip_address << "  #############  QUIT command received from User: " << user_context.user_name
+    std::cout << user_context.client_ip_address << "  #############  QUIT command received from User: "
+              << user_context.user_name
               << std::endl;
 }

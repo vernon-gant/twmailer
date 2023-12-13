@@ -1,17 +1,18 @@
 #include <filesystem>
 #include <fstream>
+#include <utility>
 #include "ReadCommand.h"
 #include "../visitor/CommandVisitor.h"
 #include "utils/Environment.h"
 #include "exceptions/InternalServerError.h"
+#include "utils/FileSystemUtils.h"
 
 namespace fs = std::filesystem;
 
 void ReadCommand::execute() {
     try {
-        std::string base_path = Environment::MAIL_DIRECTORY();
-        std::string user_dir = base_path + "/" + _message_request.user_name;
-        std::string filename = user_dir + "/message_" + std::to_string(_message_request.message_number);
+        std::string user_directory = FileSystemUtils::get_user_directory(_user_context.user_name);
+        std::string filename = user_directory + "/message_" + std::to_string(_message_request.message_number);
 
         std::ifstream file_stream(filename);
         if (!file_stream) throw InternalServerError("Internal error : could not open file");
@@ -34,5 +35,5 @@ const SingleMessageRequest &ReadCommand::get_single_message_request() const {
     return _message_request;
 }
 
-ReadCommand::ReadCommand(const UserContext &userContext, const SingleMessageRequest &messageRequest) : Command(
-        userContext), _message_request(messageRequest) {}
+ReadCommand::ReadCommand(const UserContext &userContext, SingleMessageRequest messageRequest) : Command(
+        userContext), _message_request(std::move(messageRequest)) {}

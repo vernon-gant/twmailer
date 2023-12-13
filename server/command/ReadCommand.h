@@ -10,7 +10,7 @@ private:
     SingleMessageRequest _message_request;
 
 public:
-    ReadCommand(const UserContext &userContext, const SingleMessageRequest &messageRequest);
+    ReadCommand(const UserContext &userContext, SingleMessageRequest messageRequest);
 
     void execute() override;
 
