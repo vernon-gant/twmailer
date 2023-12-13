@@ -4,12 +4,11 @@
 #include "../visitor/CommandVisitor.h"
 #include "utils/Environment.h"
 #include "exceptions/InternalServerError.h"
-#include "utils/FileSystemUtils.h"
 
 namespace fs = std::filesystem;
 
 void ListCommand::execute() {
-    std::string user_directory = FileSystemUtils::get_user_directory(_user_context.user_name);
+    std::string user_directory = _file_system_utils->get_user_directory(_user_context.user_name);
     std::string subjects;
     int message_count = 0;
 
@@ -24,7 +23,7 @@ void ListCommand::execute() {
             subjects.append(subject + "\n");
             message_count++;
         }
-        response = std::to_string(message_count) + "\n" + subjects;
+        _response = std::to_string(message_count) + "\n" + subjects;
     } catch (const std::exception &exception) {
         throw InternalServerError("Internal Server error : I/O exception");
     }
@@ -38,4 +37,5 @@ const std::string &ListCommand::get_user_name() const {
     return _user_context.user_name;
 }
 
-ListCommand::ListCommand(const UserContext &userContext) : Command(userContext) {}
+ListCommand::ListCommand(const UserContext &userContext, const std::shared_ptr<FileSystemUtils> &utils) : Command(
+        userContext), _file_system_utils(utils) {}

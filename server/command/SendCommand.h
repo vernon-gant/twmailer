@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Command.h"
+#include "utils/FileSystemUtils.h"
 
 #include <utility>
 #include <memory>
@@ -12,9 +13,10 @@ typedef struct Mail {
 class SendCommand : public Command {
 private:
     Mail _mail;
+    std::shared_ptr<FileSystemUtils> _file_system_utils;
 
 public:
-    SendCommand(const UserContext &userContext, const Mail &mail);
+    SendCommand(const UserContext &userContext, Mail mail, const std::shared_ptr<FileSystemUtils>& utils);
 
     void execute() override;
 

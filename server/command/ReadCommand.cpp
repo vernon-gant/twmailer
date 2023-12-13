@@ -5,13 +5,12 @@
 #include "../visitor/CommandVisitor.h"
 #include "utils/Environment.h"
 #include "exceptions/InternalServerError.h"
-#include "utils/FileSystemUtils.h"
 
 namespace fs = std::filesystem;
 
 void ReadCommand::execute() {
     try {
-        std::string user_directory = FileSystemUtils::get_user_directory(_user_context.user_name);
+        std::string user_directory = _file_system_utils->get_user_directory(_user_context.user_name);
         std::string filename = user_directory + "/message_" + std::to_string(_message_request.message_number);
 
         std::ifstream file_stream(filename);
@@ -21,7 +20,7 @@ void ReadCommand::execute() {
         buffer << file_stream.rdbuf();
         file_stream.close();
 
-        response = "OK\n" + buffer.str();
+        _response = "OK\n" + buffer.str();
     } catch (const std::exception &exception) {
         throw InternalServerError("Internal error : I/O problems...");
     }
@@ -35,5 +34,6 @@ const SingleMessageRequest &ReadCommand::get_single_message_request() const {
     return _message_request;
 }
 
-ReadCommand::ReadCommand(const UserContext &userContext, SingleMessageRequest messageRequest) : Command(
-        userContext), _message_request(std::move(messageRequest)) {}
+ReadCommand::ReadCommand(const UserContext &userContext, SingleMessageRequest messageRequest,
+                         const std::shared_ptr<FileSystemUtils> &utils) : Command(
+        userContext), _message_request(std::move(messageRequest)), _file_system_utils(utils) {}

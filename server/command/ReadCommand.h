@@ -2,15 +2,17 @@
 
 #include "Command.h"
 #include "DTO.h"
+#include "utils/FileSystemUtils.h"
 
 #include <utility>
 
 class ReadCommand : public Command {
 private:
     SingleMessageRequest _message_request;
+    std::shared_ptr<FileSystemUtils> _file_system_utils;
 
 public:
-    ReadCommand(const UserContext &userContext, SingleMessageRequest messageRequest);
+    ReadCommand(const UserContext &userContext, SingleMessageRequest messageRequest, const std::shared_ptr<FileSystemUtils>& utils);
 
     void execute() override;
 

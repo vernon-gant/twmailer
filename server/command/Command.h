@@ -10,9 +10,9 @@ class CommandVisitor;
 
 class Command {
 protected:
-    const UserContext _user_context;
+    UserContext _user_context;
 
-    std::string response;
+    std::string _response;
 public:
     explicit Command(UserContext user_context) : _user_context(std::move(user_context)) {};
 
@@ -21,7 +21,7 @@ public:
     virtual void accept(const CommandVisitor &visitor) const = 0;
 
     [[nodiscard]] std::string get_response() const {
-        return response;
+        return _response;
     }
 
     [[nodiscard]] const UserContext &get_user_context() const {

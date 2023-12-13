@@ -80,7 +80,7 @@ void sendFormattedMessage(int socket, const std::string &message) {
 }
 
 void receiveServerResponse(int socket) {
-    std::cout << "\nAwaiting response from server...\n";
+    std::cout << "\nAwaiting _response from server...\n";
     int message_length;
     int bytes_received = recv(socket, &message_length, sizeof(message_length), 0);
 
@@ -110,8 +110,8 @@ void receiveServerResponse(int socket) {
         total_bytes_received += bytes_received;
     }
 
-    // Print the server response
-    std::cout << "\n|    Server response received    |\n\n" << buffer.data() << std::endl;
+    // Print the server _response
+    std::cout << "\n|    Server _response received    |\n\n" << buffer.data() << std::endl;
 }
 
 std::string formatMail(const Mail &mail) {

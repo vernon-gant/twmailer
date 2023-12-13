@@ -12,7 +12,7 @@ void ValidationVisitor::visitList(const ListCommand &list_command) const {
 
     if (user_name.empty()) throw ValidationError("Invalid LIST command format: missing username!");
 
-    std::string user_directory = FileSystemUtils::get_user_directory(user_name);
+    std::string user_directory = _file_system_utils->get_user_directory(user_name);
 
     if (!fs::exists(user_directory)) throw ValidationError("0\n");
 }
@@ -44,20 +44,20 @@ void ValidationVisitor::visitRead(const ReadCommand &read_command) const {
     validateSingleMessageCommand(read_command.get_single_message_request(), "READ");
 }
 
-void ValidationVisitor::visitDelete(const DeleteCommand &delete_command) const  {
-    validateSingleMessageCommand(delete_command. get_single_message_request(), "DEL");
+void ValidationVisitor::visitDelete(const DeleteCommand &delete_command) const {
+    validateSingleMessageCommand(delete_command.get_single_message_request(), "DEL");
 }
 
 void ValidationVisitor::visitQuit(const QuitCommand &) const {}
 
 void ValidationVisitor::validateSingleMessageCommand(const SingleMessageRequest &message_request,
-                                                     const std::string &command_name) {
+                                                     const std::string &command_name) const {
     if (message_request.user_name.empty())
         throw ValidationError("Invalid " + command_name + " command format: missing user name.");
     if (message_request.message_number == std::numeric_limits<int>::max())
         throw ValidationError("Invalid " + command_name + " command format: message number is not specified.");
 
-    std::string user_directory = FileSystemUtils::get_user_directory(message_request.user_name);
+    std::string user_directory = _file_system_utils->get_user_directory(message_request.user_name);
 
     if (!fs::exists(user_directory)) throw ValidationError("Validation error: user directory does not exist.");
 
@@ -65,3 +65,6 @@ void ValidationVisitor::validateSingleMessageCommand(const SingleMessageRequest 
 
     if (!fs::exists(message_file)) throw ValidationError("Validation error: specified message does not exist.");
 }
+
+ValidationVisitor::ValidationVisitor(const std::shared_ptr<FileSystemUtils> &fileSystemUtils) : _file_system_utils(
+        fileSystemUtils) {}

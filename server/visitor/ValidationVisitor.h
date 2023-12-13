@@ -3,6 +3,11 @@
 #include "CommandVisitor.h"
 
 class ValidationVisitor : public CommandVisitor {
+private:
+    std::shared_ptr<FileSystemUtils> _file_system_utils;
+public:
+    explicit ValidationVisitor(const std::shared_ptr<FileSystemUtils> &fileSystemUtils);
+
 public:
     void visitList(const ListCommand &list_command) const override;
 
@@ -14,7 +19,6 @@ public:
 
     void visitQuit(const QuitCommand &quit_command) const override;
 
-    static void
-    validateSingleMessageCommand(const SingleMessageRequest &message_request, const std::string &command_name);
+    void validateSingleMessageCommand(const SingleMessageRequest &message_request, const std::string &command_name) const;
 
 };
