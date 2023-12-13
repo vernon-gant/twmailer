@@ -2,17 +2,13 @@
 #include <filesystem>
 #include "ValidationVisitor.h"
 #include "utils/Environment.h"
-#include "exceptions/ValidationError.h"
+#include "errors/ValidationError.h"
 #include "utils/FileSystemUtils.h"
 
 namespace fs = std::filesystem;
 
 void ValidationVisitor::visit_list(const ListCommand &list_command) const {
-    const std::string &user_name = list_command.get_user_name();
-
-    if (user_name.empty()) throw ValidationError("Invalid LIST command format: missing username!");
-
-    std::string user_directory = _file_system_utils->get_user_directory(user_name);
+    std::string user_directory = _file_system_utils->get_user_directory(list_command.get_user_name());
 
     if (!fs::exists(user_directory)) throw ValidationError("0\n");
 }
@@ -22,21 +18,20 @@ void ValidationVisitor::visit_send(const SendCommand &send_command) const {
 
     std::regex username_regex("^[a-zA-Z0-9]{1,8}$");
 
-    if (mail.sender.empty()) throw ValidationError("Invalid SEND command format: missing sender!");
     if (!std::regex_match(mail.sender, username_regex)) {
         throw ValidationError("Validation error: invalid sender username: " + mail.sender +
-                              " -> must consist of numbers with letters + length <= 8)");
+                              " -> must consist of numbers with letters + length <= 8)...");
     }
 
-    if (mail.receiver.empty()) throw ValidationError("Invalid SEND command format: missing receiver!");
+    if (mail.receiver.empty()) throw ValidationError("Invalid SEND command format: missing receiver...");
     if (!std::regex_match(mail.receiver, username_regex)) {
         throw ValidationError("Validation error: invalid receiver username: " + mail.receiver +
                               +" -> must consist of numbers with letters + length <= 8)");
     }
 
-    if (mail.sender == mail.receiver) throw ValidationError("Validation error: sender and receiver must be different!");
-    if (mail.subject.empty()) throw ValidationError("Invalid SEND command format: missing subject!");
-    if (mail.subject.size() > 80) throw ValidationError("Validation error: subject too long (max 80 characters)");
+    if (mail.sender == mail.receiver) throw ValidationError("Validation error: sender and receiver must be different...");
+    if (mail.subject.empty()) throw ValidationError("Invalid SEND command format: missing subject...");
+    if (mail.subject.size() > 80) throw ValidationError("Validation error: subject too long (max 80 characters)...");
 }
 
 
@@ -52,18 +47,16 @@ void ValidationVisitor::visit_quit(const QuitCommand &) const {}
 
 void ValidationVisitor::validate_single_message_command(const std::string &command_name, int message_number,
                                                         const std::string &user_name) const {
-    if (user_name.empty())
-        throw ValidationError("Invalid " + command_name + " command format: missing user name.");
     if (message_number == std::numeric_limits<int>::max())
-        throw ValidationError("Invalid " + command_name + " command format: message number is not specified.");
+        throw ValidationError("Invalid " + command_name + " command format: message number is not specified...");
 
     std::string user_directory = _file_system_utils->get_user_directory(user_name);
 
-    if (!fs::exists(user_directory)) throw ValidationError("Validation error: user directory does not exist.");
+    if (!fs::exists(user_directory)) throw ValidationError("Validation error : there are no messages in your inbox yet...");
 
     std::string message_file = user_directory + "/message_" + std::to_string(message_number);
 
-    if (!fs::exists(message_file)) throw ValidationError("Validation error: specified message does not exist.");
+    if (!fs::exists(message_file)) throw ValidationError("Validation error: specified message does not exist...");
 }
 
 ValidationVisitor::ValidationVisitor(const std::shared_ptr<FileSystemUtils> &fileSystemUtils) : _file_system_utils(

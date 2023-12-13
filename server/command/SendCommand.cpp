@@ -1,7 +1,7 @@
 #include "SendCommand.h"
 #include "../visitor/CommandVisitor.h"
 #include "utils/Environment.h"
-#include "exceptions/InternalServerError.h"
+#include "errors/InternalServerError.h"
 #include <filesystem>
 #include <sstream>
 #include <fstream>
@@ -40,5 +40,5 @@ const Mail &SendCommand::get_mail() const {
     return _mail;
 }
 
-SendCommand::SendCommand(const UserContext &userContext, Mail mail, const std::shared_ptr<FileSystemUtils>& utils)
+SendCommand::SendCommand(const UserContext &userContext, Mail mail, const std::shared_ptr<FileSystemUtils> &utils)
         : Command(userContext), _mail(std::move(mail)), _file_system_utils(utils) {}

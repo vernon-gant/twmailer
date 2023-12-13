@@ -2,7 +2,7 @@
 
 #include <utility>
 #include "../visitor/CommandVisitor.h"
-#include "exceptions/InternalServerError.h"
+#include "errors/InternalServerError.h"
 
 void DeleteCommand::execute() {
     const std::string &user_directory = _file_system_utils->get_user_directory(_user_context.user_name);

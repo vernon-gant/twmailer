@@ -1,9 +1,9 @@
 #include "QuitCommand.h"
 #include "../visitor/CommandVisitor.h"
-#include "exceptions/QuitException.h"
+#include "errors/Quit.h"
 
 void QuitCommand::execute() {
-    throw QuitException();
+    throw Quit();
 }
 
 void QuitCommand::accept(const CommandVisitor &visitor) const {

@@ -2,8 +2,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "ConnectionSocket.h"
-#include "exceptions/NetworkError.h"
-#include "exceptions/InternalServerError.h"
+#include "errors/NetworkError.h"
+#include "errors/InternalServerError.h"
 
 void ConnectionSocket::send(const std::string &message) {
     int messageLength = static_cast<int>(message.size());

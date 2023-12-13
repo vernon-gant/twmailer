@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <limits>
 #include "CommandFactory.h"
-#include "exceptions/ValidationError.h"
+#include "errors/ValidationError.h"
 
 std::unique_ptr<Command> CommandFactory::create(std::string &message, const UserContext &user_context) {
     if (message.empty()) throw std::invalid_argument("Empty command string!");
@@ -31,9 +31,9 @@ std::string CommandFactory::join(const std::vector<std::string> &strings, const 
 std::unique_ptr<Command>
 CommandFactory::create_send_command(const std::string &message, const UserContext &user_context) {
     Mail mail;
+    mail.sender = user_context.user_name;
 
     std::istringstream iss(message);
-    std::getline(iss, mail.sender);
     std::getline(iss, mail.receiver);
     std::getline(iss, mail.subject);
 
@@ -45,29 +45,20 @@ CommandFactory::create_send_command(const std::string &message, const UserContex
 }
 
 std::unique_ptr<Command>
-CommandFactory::create_list_command(const std::string &message, const UserContext &user_context) {
-    std::istringstream iss(message);
-    std::string user_name;
-    std::getline(iss, user_name);
-    // TODO : delete creation of new user context
-    UserContext new_user_context = {.client_ip_address = user_context.client_ip_address, .user_name = user_name};
-    return std::make_unique<ListCommand>(new_user_context, _file_system_utils);
+CommandFactory::create_list_command(const std::string &, const UserContext &user_context) {
+    return std::make_unique<ListCommand>(user_context, _file_system_utils);
 }
 
 std::unique_ptr<Command>
 CommandFactory::create_read_command(const std::string &message, const UserContext &user_context) {
-    // TODO : delete creation of new user context
-    SingleMessageRequest request = create_single_message_request(message);
-    UserContext new_user_context = {.client_ip_address = user_context.client_ip_address, .user_name = request.user_name};
-    return std::make_unique<ReadCommand>(new_user_context, request.message_number, _file_system_utils);
+    int message_number = parse_message_number(message);
+    return std::make_unique<ReadCommand>(user_context, message_number, _file_system_utils);
 }
 
 std::unique_ptr<Command>
 CommandFactory::create_del_command(const std::string &message, const UserContext &user_context) {
-    // TODO : delete creation of new user context
-    SingleMessageRequest request = create_single_message_request(message);
-    UserContext new_user_context = {.client_ip_address = user_context.client_ip_address, .user_name = request.user_name};
-    return std::make_unique<DeleteCommand>(new_user_context, request.message_number, _file_system_utils);
+    int message_number = parse_message_number(message);
+    return std::make_unique<DeleteCommand>(user_context, message_number, _file_system_utils);
 }
 
 std::unique_ptr<Command>
@@ -75,22 +66,20 @@ CommandFactory::create_quit_command(const std::string &, const UserContext &user
     return std::make_unique<QuitCommand>(user_context);
 }
 
-SingleMessageRequest CommandFactory::create_single_message_request(const std::string &message) {
+int CommandFactory::parse_message_number(const std::string &message) {
     std::istringstream iss(message);
-    SingleMessageRequest message_request;
+    int message_number;
 
-    std::getline(iss, message_request.user_name);
-
-    std::string message_number;
-    std::getline(iss, message_number);
+    std::string message_number_as_string;
+    std::getline(iss, message_number_as_string);
     try {
-        message_request.message_number = message_number.empty() ? std::numeric_limits<int>::max() : std::stoi(
-                message_number);
+        message_number = message_number_as_string.empty() ? std::numeric_limits<int>::max() : std::stoi(
+                message_number_as_string);
     } catch (const std::invalid_argument &exception) {
         throw ValidationError("Validation error : invalid message number format - must be integer!");
     }
 
-    return message_request;
+    return message_number;
 }
 
 CommandFactory::CommandFactory(const std::shared_ptr<FileSystemUtils> &fileSystemUtils)

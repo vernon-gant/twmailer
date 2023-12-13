@@ -41,7 +41,7 @@ private:
     std::unique_ptr<Command>
     create_quit_command(const std::string &message, const UserContext &user_context);
 
-    static SingleMessageRequest create_single_message_request(const std::string &message);
+    static int parse_message_number(const std::string &message);
 
 public:
     explicit CommandFactory(const std::shared_ptr<FileSystemUtils> &fileSystemUtils);

@@ -13,29 +13,29 @@
 #define PORT 9999
 
 typedef struct Mail {
-    std::string sender, receiver, subject, message;
+    std::string receiver, subject, message;
 } Mail;
 
 // Forward declarations of functions
+std::string handleLoginCommand(int socket);
 std::string handleSendCommand();
-
 std::string handleListCommand();
-
 std::string handleReadCommand();
-
 std::string handleDelCommand();
-
 std::string formatMail(const Mail &mail);
-
 Mail scanMail();
-
 std::string getUserInput(const std::string &prompt);
-
 void displayMenu();
-
 void sendFormattedMessage(int socket, const std::string &message);
+bool receiveServerResponse(int socket);
 
-void receiveServerResponse(int socket);
+std::string handleLoginCommand(int socket) {
+    std::string username = getUserInput("Enter LDAP username: ");
+    std::string password = getUserInput("Enter password: ");
+    std::string loginMessage = "LOGIN\n" + username + "\n" + password + "\n";
+    sendFormattedMessage(socket, loginMessage);
+    return receiveServerResponse(socket) ? "" : "Login failed.";
+}
 
 std::string handleSendCommand() {
     std::cout << "\n[Send Email]\n";
@@ -43,22 +43,45 @@ std::string handleSendCommand() {
     return formatMail(mail);
 }
 
-
 std::string handleListCommand() {
-    std::cout << "\n[Listing Emails]\n";
-    return "LIST\n" + getUserInput("Enter Username: ") + "\n";
+    return "LIST\n";
 }
 
 std::string handleReadCommand() {
-    std::cout << "\n[Reading Email]\n";
-    return "READ\n" + getUserInput("Enter Username: ") + "\n" +
-           getUserInput("Enter Message Number: ") + "\n";
+    std::string msgNum = getUserInput("Enter Message Number: ");
+    return "READ\n" + msgNum + "\n";
 }
 
 std::string handleDelCommand() {
-    std::cout << "\n[Deleting Email]\n";
-    return "DEL\n" + getUserInput("Enter Username: ") + "\n" +
-           getUserInput("Enter Message Number: ") + "\n";
+    std::string msgNum = getUserInput("Enter Message Number: ");
+    return "DEL\n" + msgNum + "\n";
+}
+
+std::string formatMail(const Mail &mail) {
+    std::string mailStr =
+            "SEND\n" + mail.receiver + "\n" + mail.subject + "\n" + mail.message + "\n.\n";
+    return mailStr;
+}
+
+Mail scanMail() {
+    Mail mail;
+    std::cout << "Enter Receiver: ";
+    std::getline(std::cin, mail.receiver);
+    std::cout << "Enter Subject: ";
+    std::getline(std::cin, mail.subject);
+    std::cout << "Enter Message (end with a line containing only '.'): ";
+    std::string line;
+    while (std::getline(std::cin, line) && line != ".") {
+        mail.message += line + "\n";
+    }
+    return mail;
+}
+
+std::string getUserInput(const std::string &prompt) {
+    std::cout << prompt;
+    std::string input;
+    std::getline(std::cin, input);
+    return input;
 }
 
 void displayMenu() {
@@ -79,8 +102,7 @@ void sendFormattedMessage(int socket, const std::string &message) {
     send(socket, message.c_str(), message.length(), 0);
 }
 
-void receiveServerResponse(int socket) {
-    std::cout << "\nAwaiting _response from server...\n";
+bool receiveServerResponse(int socket) {
     int message_length;
     int bytes_received = recv(socket, &message_length, sizeof(message_length), 0);
 
@@ -90,10 +112,9 @@ void receiveServerResponse(int socket) {
         } else {
             perror("recv error");
         }
-        return;
+        return false;
     }
 
-    // Allocate buffer based on the received length
     std::vector<char> buffer(message_length + 1, '\0');
     int total_bytes_received = 0;
 
@@ -105,49 +126,20 @@ void receiveServerResponse(int socket) {
             } else {
                 perror("recv error");
             }
-            return;
+            return false;
         }
         total_bytes_received += bytes_received;
     }
 
-    // Print the server _response
-    std::cout << "\n|    Server _response received    |\n\n" << buffer.data() << std::endl;
-}
-
-std::string formatMail(const Mail &mail) {
-    std::cout << "\nFormatting email for sending...\n";
-    std::string mailStr =
-            "SEND\n" + mail.sender + "\n" + mail.receiver + "\n" + mail.subject + "\n" + mail.message;
-    return mailStr;
-}
-
-Mail scanMail() {
-    Mail mail;
-    std::cout << "Enter Sender: ";
-    std::getline(std::cin, mail.sender);
-    std::cout << "Enter Receiver: ";
-    std::getline(std::cin, mail.receiver);
-    std::cout << "Enter Subject: ";
-    std::getline(std::cin, mail.subject);
-    std::cout << "Enter Message (end with a line containing only '.'): ";
-    std::string line;
-    while (std::getline(std::cin, line) && line != ".") {
-        mail.message += line + "\n";
-    }
-    return mail;
-}
-
-std::string getUserInput(const std::string &prompt) {
-    std::cout << prompt;
-    std::string input;
-    std::getline(std::cin, input);
-    return input;
+    std::cout << "\nServer response: " << buffer.data() << std::endl;
+    return std::string(buffer.data()) == "OK\n";
 }
 
 int main(int argc, char **argv) {
     std::cout << "\nInitializing email client...\n\n";
     int create_socket;
     struct sockaddr_in address{};
+    bool isAuthenticated = false;
     bool isQuit = false;
 
     if ((create_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -167,7 +159,17 @@ int main(int argc, char **argv) {
 
     printf("Connection with server (%s) established\n", inet_ntoa(address.sin_addr));
 
-    while (!isQuit) {
+    while (!isAuthenticated && !isQuit) {
+        std::string loginResult = handleLoginCommand(create_socket);
+        if (loginResult.empty()) {
+            isAuthenticated = true;
+        } else {
+            std::cout << loginResult << std::endl;
+            isQuit = getUserInput("Try again? (yes/no): ") != "yes";
+        }
+    }
+
+    while (!isQuit && isAuthenticated) {
         displayMenu();
         std::string command = getUserInput("Enter command: ");
         std::string message;
@@ -191,7 +193,6 @@ int main(int argc, char **argv) {
         sendFormattedMessage(create_socket, message);
         if (!isQuit) receiveServerResponse(create_socket);
     }
-
 
     std::cout << "\nClosing connection and exiting program...\n";
     close(create_socket);

@@ -1,9 +1,7 @@
 #include "ListeningSocket.h"
 #include <netdb.h>
-#include <iostream>
 #include "stdexcept"
-#include "exceptions/NetworkError.h"
-#include "exceptions/InternalServerError.h"
+#include "errors/InternalServerError.h"
 
 
 std::unique_ptr<ListeningSocket> ListeningSocket::fromPort(int port) {
