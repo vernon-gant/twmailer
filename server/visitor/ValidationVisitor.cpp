@@ -7,7 +7,7 @@
 
 namespace fs = std::filesystem;
 
-void ValidationVisitor::visitList(const ListCommand &list_command) const {
+void ValidationVisitor::visit_list(const ListCommand &list_command) const {
     const std::string &user_name = list_command.get_user_name();
 
     if (user_name.empty()) throw ValidationError("Invalid LIST command format: missing username!");
@@ -17,7 +17,7 @@ void ValidationVisitor::visitList(const ListCommand &list_command) const {
     if (!fs::exists(user_directory)) throw ValidationError("0\n");
 }
 
-void ValidationVisitor::visitSend(const SendCommand &send_command) const {
+void ValidationVisitor::visit_send(const SendCommand &send_command) const {
     const Mail &mail = send_command.get_mail();
 
     std::regex username_regex("^[a-zA-Z0-9]{1,8}$");
@@ -40,28 +40,28 @@ void ValidationVisitor::visitSend(const SendCommand &send_command) const {
 }
 
 
-void ValidationVisitor::visitRead(const ReadCommand &read_command) const {
-    validateSingleMessageCommand(read_command.get_single_message_request(), "READ");
+void ValidationVisitor::visit_read(const ReadCommand &read_command) const {
+    validate_single_message_command("READ", read_command.get_message_number(), read_command.get_user_context().user_name);
 }
 
-void ValidationVisitor::visitDelete(const DeleteCommand &delete_command) const {
-    validateSingleMessageCommand(delete_command.get_single_message_request(), "DEL");
+void ValidationVisitor::visit_delete(const DeleteCommand &delete_command) const {
+    validate_single_message_command("DEL", delete_command.get_message_number(), delete_command.get_user_context().user_name);
 }
 
-void ValidationVisitor::visitQuit(const QuitCommand &) const {}
+void ValidationVisitor::visit_quit(const QuitCommand &) const {}
 
-void ValidationVisitor::validateSingleMessageCommand(const SingleMessageRequest &message_request,
-                                                     const std::string &command_name) const {
-    if (message_request.user_name.empty())
+void ValidationVisitor::validate_single_message_command(const std::string &command_name, int message_number,
+                                                        const std::string &user_name) const {
+    if (user_name.empty())
         throw ValidationError("Invalid " + command_name + " command format: missing user name.");
-    if (message_request.message_number == std::numeric_limits<int>::max())
+    if (message_number == std::numeric_limits<int>::max())
         throw ValidationError("Invalid " + command_name + " command format: message number is not specified.");
 
-    std::string user_directory = _file_system_utils->get_user_directory(message_request.user_name);
+    std::string user_directory = _file_system_utils->get_user_directory(user_name);
 
     if (!fs::exists(user_directory)) throw ValidationError("Validation error: user directory does not exist.");
 
-    std::string message_file = user_directory + "/message_" + std::to_string(message_request.message_number);
+    std::string message_file = user_directory + "/message_" + std::to_string(message_number);
 
     if (!fs::exists(message_file)) throw ValidationError("Validation error: specified message does not exist.");
 }

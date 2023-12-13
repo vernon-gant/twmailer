@@ -8,15 +8,15 @@
 
 class CommandVisitor {
 public:
-    virtual void visitList(const ListCommand &list_command) const = 0;
+    virtual void visit_list(const ListCommand &list_command) const = 0;
 
-    virtual void visitSend(const SendCommand &send_command) const = 0;
+    virtual void visit_send(const SendCommand &send_command) const = 0;
 
-    virtual void visitRead(const ReadCommand &read_command) const = 0;
+    virtual void visit_read(const ReadCommand &read_command) const = 0;
 
-    virtual void visitDelete(const DeleteCommand &delete_command) const = 0;
+    virtual void visit_delete(const DeleteCommand &delete_command) const = 0;
 
-    virtual void visitQuit(const QuitCommand &quit_command) const = 0;
+    virtual void visit_quit(const QuitCommand &quit_command) const = 0;
 
     virtual ~CommandVisitor() = default;
 };

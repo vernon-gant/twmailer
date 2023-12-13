@@ -1,21 +1,20 @@
 #pragma once
 
 #include "Command.h"
-#include "DTO.h"
 #include "utils/FileSystemUtils.h"
 
 class DeleteCommand : public Command {
 private:
-    SingleMessageRequest _message_request;
+    const int _message_number;
     std::shared_ptr<FileSystemUtils> _file_system_utils;
 public:
-    DeleteCommand(const UserContext &userContext, SingleMessageRequest messageRequest,
+    DeleteCommand(const UserContext &userContext, int message_number,
                   const std::shared_ptr<FileSystemUtils> &utils);
 
     void execute() override;
 
     void accept(const CommandVisitor &visitor) const override;
 
-    [[nodiscard]] const SingleMessageRequest &get_single_message_request() const;
+    [[nodiscard]] int get_message_number() const;
 
 };

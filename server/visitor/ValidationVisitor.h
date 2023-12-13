@@ -9,16 +9,17 @@ public:
     explicit ValidationVisitor(const std::shared_ptr<FileSystemUtils> &fileSystemUtils);
 
 public:
-    void visitList(const ListCommand &list_command) const override;
+    void visit_list(const ListCommand &list_command) const override;
 
-    void visitSend(const SendCommand &send_command) const override;
+    void visit_send(const SendCommand &send_command) const override;
 
-    void visitRead(const ReadCommand &read_command) const override;
+    void visit_read(const ReadCommand &read_command) const override;
 
-    void visitDelete(const DeleteCommand &delete_command) const override;
+    void visit_delete(const DeleteCommand &delete_command) const override;
 
-    void visitQuit(const QuitCommand &quit_command) const override;
+    void visit_quit(const QuitCommand &) const override;
 
-    void validateSingleMessageCommand(const SingleMessageRequest &message_request, const std::string &command_name) const;
+    void validate_single_message_command(const std::string &command_name, int message_number,
+                                         const std::string &user_name) const;
 
 };

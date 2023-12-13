@@ -7,7 +7,7 @@ void QuitCommand::execute() {
 }
 
 void QuitCommand::accept(const CommandVisitor &visitor) const {
-    visitor.visitQuit(*this);
+    visitor.visit_quit(*this);
 }
 
 QuitCommand::QuitCommand(const UserContext &userContext) : Command(userContext) {}

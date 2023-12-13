@@ -30,7 +30,7 @@ void ListCommand::execute() {
 }
 
 void ListCommand::accept(const CommandVisitor &visitor) const {
-    visitor.visitList(*this);
+    visitor.visit_list(*this);
 }
 
 const std::string &ListCommand::get_user_name() const {

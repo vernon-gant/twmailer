@@ -10,7 +10,10 @@
 #include "DeleteCommand.h"
 #include "QuitCommand.h"
 
-struct Request;
+typedef struct SingleMessageRequest {
+    std::string user_name;
+    int message_number;
+} SingleMessageRequest;
 
 
 class CommandFactory {
@@ -35,7 +38,7 @@ private:
     std::unique_ptr<Command>
     create_del_command(const std::string &message, const UserContext &user_context);
 
-    static std::unique_ptr<Command>
+    std::unique_ptr<Command>
     create_quit_command(const std::string &message, const UserContext &user_context);
 
     static SingleMessageRequest create_single_message_request(const std::string &message);

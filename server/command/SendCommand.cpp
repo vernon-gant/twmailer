@@ -33,7 +33,7 @@ void SendCommand::execute() {
 }
 
 void SendCommand::accept(const CommandVisitor &visitor) const {
-    visitor.visitSend(*this);
+    visitor.visit_send(*this);
 }
 
 const Mail &SendCommand::get_mail() const {
