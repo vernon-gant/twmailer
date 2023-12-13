@@ -59,7 +59,7 @@ CommandFactory::create_read_command(const std::string &message, const UserContex
     // TODO : delete creation of new user context
     SingleMessageRequest request = create_single_message_request(message);
     UserContext new_user_context = {.client_ip_address = user_context.client_ip_address, .user_name = request.user_name};
-    return std::make_unique<ReadCommand>(user_context, request.message_number, _file_system_utils);
+    return std::make_unique<ReadCommand>(new_user_context, request.message_number, _file_system_utils);
 }
 
 std::unique_ptr<Command>
@@ -67,7 +67,7 @@ CommandFactory::create_del_command(const std::string &message, const UserContext
     // TODO : delete creation of new user context
     SingleMessageRequest request = create_single_message_request(message);
     UserContext new_user_context = {.client_ip_address = user_context.client_ip_address, .user_name = request.user_name};
-    return std::make_unique<DeleteCommand>(user_context, request.message_number, _file_system_utils);
+    return std::make_unique<DeleteCommand>(new_user_context, request.message_number, _file_system_utils);
 }
 
 std::unique_ptr<Command>
