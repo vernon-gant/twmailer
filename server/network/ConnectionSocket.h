@@ -23,6 +23,6 @@ public:
 
     std::string receive();
 
-    const std::string &get_client_ip_address();
+    const std::string &get_client_address();
 
 };

@@ -7,15 +7,15 @@
 #include "errors/GotBanned.h"
 
 void ConnectionHandler::handle(const std::shared_ptr<ConnectionSocket> &connection_socket) {
-    std::cout << connection_socket->get_client_ip_address() << "  #############  Started communication" << std::endl;
+    _logger->log(connection_socket->get_client_address(),"Started communication");
 
     try {
         std::optional<UserContext> user_context = authenticate(connection_socket);
         if (user_context.has_value()) handle_connection(connection_socket, user_context.value());
     } catch (const NetworkError &exception) {
-        std::cout << connection_socket->get_client_ip_address() << "  #############  " << exception.what() << std::endl;
+        _logger->log(connection_socket->get_client_address(), exception.what());
     } catch (const InternalServerError &error) {
-        std::cout << connection_socket->get_client_ip_address() << "  #############  " << error.what() << std::endl;
+        _logger->log(connection_socket->get_client_address(), error.what());
         connection_socket->send("ERR\n");
     }
 
@@ -26,13 +26,13 @@ std::optional<UserContext> ConnectionHandler::authenticate(const std::shared_ptr
     try {
         return std::make_optional<UserContext>(_auth_guard->authenticate(connection_socket));
     } catch (const GotBanned &error) {
-        std::cout << connection_socket->get_client_ip_address() << "  #############  Last login attempt for \""
-                  << error.get_user_name() << "\" used - got banned" << std::endl;
+        std::string log_message = "Last login attempt for \"" + error.get_user_name() + "\" used - got banned";
+        _logger->log(connection_socket->get_client_address(), log_message);
         connection_socket->send(error.what());
     } catch (const IsBanned &error) {
-        std::cout << connection_socket->get_client_ip_address() << "  #############  Login with \""
-                  << error.get_user_name() << "\" failed - currently banned" << std::endl;
-        connection_socket->send("BAN\n");
+        std::string log_message = "Login with \"" + error.get_user_name() + "\" failed - currently banned";
+        _logger->log(connection_socket->get_client_address(), log_message);
+        connection_socket->send(error.what());
     }
     return std::nullopt;
 }
@@ -45,7 +45,7 @@ void ConnectionHandler::handle_connection(const std::shared_ptr<ConnectionSocket
             std::string response = handle_command(message, user_context);
             connection_socket->send(response);
         } catch (const Quit &) {
-            std::cout << connection_socket->get_client_ip_address() << "  #############  Ended session" << std::endl;
+            _logger->log(connection_socket->get_client_address(), "Ended session");
             break;
         }
     }
@@ -58,7 +58,7 @@ std::string ConnectionHandler::handle_command(std::string &message, const UserCo
         command->execute();
         return command->get_response();
     } catch (const ValidationError &validation_error) {
-        std::cout << user_context.client_ip_address << "  #############  " << validation_error.what() << std::endl;
+        _logger->log(user_context.client_ip_address, validation_error.what());
         return validation_error.what();
     }
 }

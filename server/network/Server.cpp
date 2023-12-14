@@ -5,7 +5,7 @@
 
 void Server::start() {
     _listening_socket->listen();
-    std::cout << "\n               SERVER STARTED LISTENING               \n" << std::endl;
+    _logger->log("\n               SERVER STARTED LISTENING               \n");
     while (true) {
         try {
             std::shared_ptr<ConnectionSocket> new_connection = _listening_socket->accept();
@@ -14,7 +14,7 @@ void Server::start() {
             });
             connection_thread.detach();
         } catch (const std::exception &exception) {
-            std::cout << exception.what() << std::endl;
+            _logger->log_fatal_error(std::string(exception.what()));
         }
     }
 }
