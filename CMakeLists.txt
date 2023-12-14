@@ -23,16 +23,7 @@ file(GLOB_RECURSE SOURCES_SERVER "server/*.cpp")
 
 # Create executables for client and server
 add_executable(client ${SOURCES_CLIENT})
-add_executable(server ${SOURCES_SERVER}
-        server/auth/LDAPConnector.cpp
-        server/auth/LDAPConnector.h
-        server/auth/BlackListHandler.h
-        server/auth/AuthGuard.h
-        server/errors/IsBanned.h
-        server/errors/WrongCredentials.h
-        server/errors/ConfigurationError.h
-        server/auth/CredentialsReader.h
-        server/errors/GotBanned.h)
+add_executable(server ${SOURCES_SERVER})
 
 # Specify the output directories for binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)

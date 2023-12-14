@@ -1,49 +1,48 @@
-# Compiler
-CC=g++
+# Compiler and flags
+CC = g++
+CFLAGS = -g -Wall -Wextra -O -pthread -std=c++17
 
-# Compiler Flags
-CFLAGS=-g -Wall -Wextra -O -std=c++17 -pthread
+# Include directories
+INCLUDES = -I./client -I./server -I/usr/include
 
-# Source, Object, and Binary directories
-SRC_DIR_CLIENT=client
-SRC_DIR_SERVER=server
-OBJ_DIR_CLIENT=$(OBJ_DIR)/client
-OBJ_DIR_SERVER=$(OBJ_DIR)/server
-OBJ_DIR=obj
-BIN_DIR=bin
+# Source files
+SOURCES_CLIENT = $(shell find client/ -name '*.cpp')
+SOURCES_SERVER = $(shell find server/ -name '*.cpp')
 
-# Find source files recursively
-SRCS_CLIENT=$(shell find $(SRC_DIR_CLIENT) -name '*.cpp')
-SRCS_SERVER=$(shell find $(SRC_DIR_SERVER) -name '*.cpp')
+# Object files directory
+OBJ_DIR = bin/obj
 
-# Create object file paths, preserving the directory structure
-OBJS_CLIENT=$(SRCS_CLIENT:$(SRC_DIR_CLIENT)/%.cpp=$(OBJ_DIR_CLIENT)/%.o)
-OBJS_SERVER=$(SRCS_SERVER:$(SRC_DIR_SERVER)/%.cpp=$(OBJ_DIR_SERVER)/%.o)
+# Object files
+OBJS_CLIENT = $(SOURCES_CLIENT:%.cpp=$(OBJ_DIR)/%.o)
+OBJS_SERVER = $(SOURCES_SERVER:%.cpp=$(OBJ_DIR)/%.o)
 
-# Targets
-.PHONY: all clean
+# Output directory for binaries
+BIN_DIR = bin
 
-all: $(BIN_DIR)/server $(BIN_DIR)/client
+# Output binaries
+BIN_CLIENT = $(BIN_DIR)/client
+BIN_SERVER = $(BIN_DIR)/server
 
-# Server binary
-$(BIN_DIR)/server: $(OBJS_SERVER)
-	$(CC) $(CFLAGS) -o $@ $^
+# LDAP Libraries
+LDAP_LIBS = -lldap -llber
 
-# Client binary
-$(BIN_DIR)/client: $(OBJS_CLIENT)
-	$(CC) $(CFLAGS) -o $@ $^
+# Build targets
+.PHONY: all prebuild clean
 
-# Generic rule for object files - server
-$(OBJ_DIR_SERVER)/%.o: $(SRC_DIR_SERVER)/%.cpp
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+all: prebuild $(BIN_CLIENT) $(BIN_SERVER)
 
-# Generic rule for object files - client
-$(OBJ_DIR_CLIENT)/%.o: $(SRC_DIR_CLIENT)/%.cpp
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+prebuild:
+	mkdir -p $(BIN_DIR) $(OBJ_DIR)
 
-# Clean up
+$(BIN_CLIENT): $(OBJS_CLIENT)
+	$(CC) $(CFLAGS) -o $(BIN_CLIENT) $(OBJS_CLIENT) $(LDAP_LIBS)
+
+$(BIN_SERVER): $(OBJS_SERVER)
+	$(CC) $(CFLAGS) -o $(BIN_SERVER) $(OBJS_SERVER) $(LDAP_LIBS)
+
+$(OBJ_DIR)/%.o: %.cpp
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
 clean:
-	clear
-	rm -rf $(BIN_DIR)/* $(OBJ_DIR)/*
+	rm -rf $(OBJ_DIR) $(BIN_CLIENT) $(BIN_SERVER)
