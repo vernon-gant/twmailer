@@ -17,4 +17,6 @@ public:
 
     static void increase_wrong_tries(const std::string &user_name, const std::string &client_address);
 
+    static void check_old_bans();
+
 };

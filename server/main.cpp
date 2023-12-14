@@ -1,3 +1,4 @@
+#include <thread>
 #include "utils/Environment.h"
 #include "network/ListeningSocket.h"
 #include "network/ConnectionHandler.h"
@@ -8,6 +9,7 @@
 #include "errors/InternalServerError.h"
 
 int main(int argc, char **argv) {
+    std::thread(&BlackListHandler::check_old_bans).detach();
     std::shared_ptr<Environment> environment = Environment::FromArgs(argc, argv);
     std::unique_ptr<ListeningSocket> listening_socket;
     std::shared_ptr<Logger> logger = std::make_shared<Logger>();

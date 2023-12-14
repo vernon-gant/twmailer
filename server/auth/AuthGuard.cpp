@@ -35,7 +35,7 @@ UserContext AuthGuard::authenticate(const std::shared_ptr<ConnectionSocket> &con
 
 UserContext AuthGuard::authenticate_user(const std::shared_ptr<ConnectionSocket> &connection_socket,const Credentials &credentials) const {
     log_success(connection_socket->get_client_address(), credentials.user_name);
-    connection_socket->send("OK\n");
+    connection_socket->send("OK");
     return {.client_ip_address = connection_socket->get_client_address(), .user_name = credentials.user_name};
 }
 
@@ -46,7 +46,7 @@ void AuthGuard::handle_failed_attempt(const std::shared_ptr<ConnectionSocket> &c
     int times_banned = _black_list_handler->get_bans_amount(credentials.user_name,connection_socket->get_client_address());
     if (times_banned == MAX_ATTEMPTS) throw AttemptsExceeded();
 
-    connection_socket->send("WRONG\n");
+    connection_socket->send("WRONG");
     log_wrong_credentials(connection_socket->get_client_address(), credentials.user_name);
 }
 

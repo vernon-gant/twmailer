@@ -16,7 +16,7 @@ void ConnectionHandler::handle(const std::shared_ptr<ConnectionSocket> &connecti
         _logger->log(connection_socket->get_client_address(), exception.what());
     } catch (const InternalServerError &error) {
         _logger->log(connection_socket->get_client_address(), error.what());
-        connection_socket->send("ERR\n");
+        connection_socket->send("ERR");
     }
 
     _logger->log(connection_socket->get_client_address(), "Closed connection");

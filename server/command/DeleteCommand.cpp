@@ -9,8 +9,8 @@ void DeleteCommand::execute() {
     try {
         if (std::filesystem::remove(file_path)) {
             reorder_message_files(user_directory, _message_number);
-            _response = "OK\n";
-        } else _response = "ERR\n";
+            _response = "OK";
+        } else _response = "ERR";
     } catch (const fs::filesystem_error &exception) {
         throw InternalServerError("Internal Server error : error while deleting the message...");
     }
