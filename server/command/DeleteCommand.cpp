@@ -11,8 +11,8 @@ void DeleteCommand::execute() {
             reorder_message_files(user_directory, _message_number);
             _response = "OK\n";
         } else _response = "ERR\n";
-    } catch (const std::exception &exception) {
-        throw InternalServerError("Internal Server error : I/O exception");
+    } catch (const fs::filesystem_error &exception) {
+        throw InternalServerError("Internal Server error : error while deleting the message...");
     }
 }
 

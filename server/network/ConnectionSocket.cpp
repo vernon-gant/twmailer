@@ -26,7 +26,7 @@ std::string ConnectionSocket::receive() {
     int bytes_received = recv(_socket_descriptor, &message_length, sizeof(int), 0);
 
     if (bytes_received == -1) throw NetworkError("Network error : fail while receiving message length");
-    if (bytes_received == 0) throw NetworkError("Connection closed by client");
+    if (bytes_received == 0) throw NetworkError("Network error : client disconnected");
 
     int total = 0;
     int bytes_left = message_length;
@@ -38,7 +38,7 @@ std::string ConnectionSocket::receive() {
         bytes_received = recv(_socket_descriptor, buffer, bytes_left, 0);
 
         if (bytes_received == -1) throw NetworkError("Network error : fail while receiving message");
-        if (bytes_received == 0) throw NetworkError("Connection closed by client");
+        if (bytes_received == 0) throw NetworkError("Network error : client disconnected");
 
         message.append(buffer);
         bzero(buffer, bytes_received);

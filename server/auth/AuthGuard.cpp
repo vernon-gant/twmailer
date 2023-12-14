@@ -17,7 +17,7 @@ UserContext AuthGuard::authenticate(const std::shared_ptr<ConnectionSocket> &con
     log_attempt(connection_socket->get_client_address(), credentials.user_name);
 
     if (_black_list_handler->is_banned(credentials.user_name, connection_socket->get_client_address()))
-        throw IsBanned("You are banned : please wait until your ban for " + credentials.user_name + " is released...", credentials.user_name);
+        throw IsBanned("IS BANNED", credentials.user_name);
 
     while (true) {
         if (_ldap_connector->valid_credentials(credentials)) return authenticate_user(connection_socket, credentials);
@@ -30,8 +30,7 @@ UserContext AuthGuard::authenticate(const std::shared_ptr<ConnectionSocket> &con
     }
 
     _black_list_handler->ban(credentials.user_name, connection_socket->get_client_address());
-    throw GotBanned("Got banned : you got banned for 1 minute with \"" + credentials.user_name + "\" username...",
-                    credentials.user_name);
+    throw GotBanned("GOT BANNED",credentials.user_name);
 }
 
 UserContext AuthGuard::authenticate_user(const std::shared_ptr<ConnectionSocket> &connection_socket,const Credentials &credentials) const {
@@ -47,7 +46,7 @@ void AuthGuard::handle_failed_attempt(const std::shared_ptr<ConnectionSocket> &c
     int times_banned = _black_list_handler->get_bans_amount(credentials.user_name,connection_socket->get_client_address());
     if (times_banned == MAX_ATTEMPTS) throw AttemptsExceeded();
 
-    connection_socket->send("Wrong credentials : wrong username or password. Please, try again...");
+    connection_socket->send("WRONG\n");
     log_wrong_credentials(connection_socket->get_client_address(), credentials.user_name);
 }
 

@@ -27,14 +27,29 @@ Mail scanMail();
 std::string getUserInput(const std::string &prompt);
 void displayMenu();
 void sendFormattedMessage(int socket, const std::string &message);
-bool receiveServerResponse(int socket);
+std::string receiveServerResponse(int socket);
+
+std::string interpretServerResponse(const std::string& response) {
+    if (response == "OK") {
+        return "Authentication successful!";
+    } else if (response == "WRONG") {
+        return "Wrong credentials: wrong username or password...";
+    } else if (response == "IS BANNED") {
+        return "Your account is currently banned...";
+    } else if (response == "GOT BANNED") {
+        return "You have been banned after 3 login attempts. Try again in 1 minute...";
+    } else {
+        return response;
+    }
+}
+
 
 std::string handleLoginCommand(int socket) {
     std::string username = getUserInput("Enter LDAP username: ");
     std::string password = getUserInput("Enter password: ");
     std::string loginMessage = "LOGIN\n" + username + "\n" + password + "\n";
     sendFormattedMessage(socket, loginMessage);
-    return receiveServerResponse(socket) ? "" : "Login failed.";
+    return receiveServerResponse(socket);
 }
 
 std::string handleSendCommand() {
@@ -102,7 +117,7 @@ void sendFormattedMessage(int socket, const std::string &message) {
     send(socket, message.c_str(), message.length(), 0);
 }
 
-bool receiveServerResponse(int socket) {
+std::string receiveServerResponse(int socket) {
     int message_length;
     int bytes_received = recv(socket, &message_length, sizeof(message_length), 0);
 
@@ -112,7 +127,7 @@ bool receiveServerResponse(int socket) {
         } else {
             perror("recv error");
         }
-        return false;
+        return "Connection error or server closed connection";
     }
 
     std::vector<char> buffer(message_length + 1, '\0');
@@ -126,13 +141,12 @@ bool receiveServerResponse(int socket) {
             } else {
                 perror("recv error");
             }
-            return false;
+            return "Connection error or server closed connection";
         }
         total_bytes_received += bytes_received;
     }
 
-    std::cout << "\nServer response: " << buffer.data() << std::endl;
-    return std::string(buffer.data()) == "OK\n";
+    return std::string(buffer.data());
 }
 
 int main(int argc, char **argv) {
@@ -161,10 +175,11 @@ int main(int argc, char **argv) {
 
     while (!isAuthenticated && !isQuit) {
         std::string loginResult = handleLoginCommand(create_socket);
-        if (loginResult.empty()) {
+        if (loginResult == "OK") {
             isAuthenticated = true;
         } else {
-            std::cout << loginResult << std::endl;
+            std::cout << interpretServerResponse(loginResult) << std::endl;
+            if (loginResult == "IS BANNED" || loginResult == "GOT BANNED") break;
             isQuit = getUserInput("Try again? (yes/no): ") != "yes";
         }
     }
@@ -191,7 +206,10 @@ int main(int argc, char **argv) {
         }
 
         sendFormattedMessage(create_socket, message);
-        if (!isQuit) receiveServerResponse(create_socket);
+        if (!isQuit) {
+            std::string response = receiveServerResponse(create_socket);
+            std::cout << "\nServer response: " << response << std::endl;
+        }
     }
 
     std::cout << "\nClosing connection and exiting program...\n";

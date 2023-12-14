@@ -48,7 +48,7 @@ LoginInput CredentialsReader::read_login_data(const std::shared_ptr<ConnectionSo
         std::getline(iss, credentials.password);
         login_input.credentials = credentials;
         return login_input;
-    } catch (const std::exception &) {
+    } catch (const std::istringstream::failure& e) {
         throw InternalServerError("Internal Server error : failed to parse credentials from message...");
     }
 }

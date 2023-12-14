@@ -29,8 +29,8 @@ void BlackListHandler::increase_wrong_tries(const std::string &user_name, const 
         if (!file_stream.is_open()) throw InternalServerError("Internal Server Error: Failed to open ban file for increasing bans amount...");
         file_stream << bans_amount;
         file_stream.close();
-    } catch (const std::exception &) {
-        throw InternalServerError("Internal Error : failed to increase bans amount...");
+    } catch (const std::ofstream::failure &) {
+        throw InternalServerError("Internal Error : failed to write increased bans amount to the file...");
     }
 }
 
@@ -55,7 +55,7 @@ int BlackListHandler::get_bans_amount(const std::string &user_name, const std::s
         file_stream.close();
 
         return std::stoi(line);
-    } catch (const std::exception &exception) {
+    } catch (const std::ifstream::failure &exception) {
         throw InternalServerError("Internal Server error : failed to obtain bans amount...");
     }
 }

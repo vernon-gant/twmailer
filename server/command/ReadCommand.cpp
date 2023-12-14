@@ -20,8 +20,8 @@ void ReadCommand::execute() {
         file_stream.close();
 
         _response = "OK\n" + buffer.str();
-    } catch (const std::exception &exception) {
-        throw InternalServerError("Internal error : I/O problems...");
+    } catch (const std::stringstream::failure &exception) {
+        throw InternalServerError("Internal error : failed to read a message...");
     }
 }
 

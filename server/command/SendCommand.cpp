@@ -27,8 +27,8 @@ void SendCommand::execute() {
         fileStream << "Content:\n" << _mail.content;
         fileStream.close();
         _response = "OK";
-    } catch (const std::exception &exception) {
-        throw InternalServerError("Internal Server error : I/O exception");
+    } catch (const std::ofstream::failure &exception) {
+        throw InternalServerError("Internal Server error : could not save sent message...");
     }
 }
 

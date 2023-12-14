@@ -7,7 +7,7 @@
 #include "errors/GotBanned.h"
 
 void ConnectionHandler::handle(const std::shared_ptr<ConnectionSocket> &connection_socket) {
-    _logger->log(connection_socket->get_client_address(),"Started communication");
+    _logger->log(connection_socket->get_client_address(),"Started connection");
 
     try {
         std::optional<UserContext> user_context = authenticate(connection_socket);
@@ -19,6 +19,7 @@ void ConnectionHandler::handle(const std::shared_ptr<ConnectionSocket> &connecti
         connection_socket->send("ERR\n");
     }
 
+    _logger->log(connection_socket->get_client_address(), "Closed connection");
     connection_socket->close();
 }
 

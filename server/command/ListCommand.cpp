@@ -24,7 +24,7 @@ void ListCommand::execute() {
             message_count++;
         }
         _response = std::to_string(message_count) + "\n" + subjects;
-    } catch (const std::exception &exception) {
+    } catch (const std::ifstream::failure &exception) {
         throw InternalServerError("Internal Server error : I/O exception");
     }
 }
