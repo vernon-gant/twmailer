@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <thread>
 #include "Server.h"
 
 void Server::start() {
@@ -8,7 +9,10 @@ void Server::start() {
     while (true) {
         try {
             std::shared_ptr<ConnectionSocket> new_connection = _listening_socket->accept();
-            _connection_handler->handle(new_connection);
+            std::thread connection_thread([this, new_connection]() {
+                _connection_handler->handle(new_connection);
+            });
+            connection_thread.detach();
         } catch (const std::exception &exception) {
             std::cout << exception.what() << std::endl;
         }

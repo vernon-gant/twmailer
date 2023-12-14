@@ -1,6 +1,5 @@
 #include "DeleteCommand.h"
 
-#include <utility>
 #include "../visitor/CommandVisitor.h"
 #include "errors/InternalServerError.h"
 
@@ -8,8 +7,10 @@ void DeleteCommand::execute() {
     const std::string &user_directory = _file_system_utils->get_user_directory(_user_context.user_name);
     const std::string &file_path = user_directory + "/message_" + std::to_string(_message_number);
     try {
-        if (std::filesystem::remove(file_path)) _response = "OK\n";
-        else _response = "ERR\n";
+        if (std::filesystem::remove(file_path)) {
+            reorder_message_files(user_directory, _message_number);
+            _response = "OK\n";
+        } else _response = "ERR\n";
     } catch (const std::exception &exception) {
         throw InternalServerError("Internal Server error : I/O exception");
     }
@@ -26,3 +27,13 @@ DeleteCommand::DeleteCommand(const UserContext &userContext, int message_number,
 int DeleteCommand::get_message_number() const {
     return _message_number;
 }
+
+void DeleteCommand::reorder_message_files(const std::string &user_directory, int deleted_message_number) {
+    for (int i = deleted_message_number + 1;; ++i) {
+        std::string old_file = user_directory + "/message_" + std::to_string(i);
+        if (!std::filesystem::exists(old_file)) break;
+        std::string new_file = user_directory + "/message_" + std::to_string(i - 1);
+        std::filesystem::rename(old_file, new_file);
+    }
+}
+

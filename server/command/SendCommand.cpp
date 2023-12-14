@@ -24,7 +24,7 @@ void SendCommand::execute() {
 
         fileStream << "Subject: " << _mail.subject << "\n";
         fileStream << "Receiver: " << _mail.receiver << "\n";
-        fileStream << "Content:\n" << _mail.content << "\n";
+        fileStream << "Content:\n" << _mail.content;
         fileStream.close();
         _response = "OK";
     } catch (const std::exception &exception) {

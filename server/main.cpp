@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     visitors.emplace_back(std::move(logging_visitor));
     std::unique_ptr<CommandPipeline> command_pipeline = std::make_unique<VisitorPipeline>(std::move(visitors));
     std::unique_ptr<CommandFactory> command_parser = std::make_unique<CommandFactory>(utils);
-    std::unique_ptr<LDAPConnector> ldap_connector = LDAPConnector::initialize();
+    std::unique_ptr<LDAPConnector> ldap_connector = LDAPConnector::initialize_connection();
     std::unique_ptr<BlackListHandler> black_list_handler = std::make_unique<BlackListHandler>();
     std::unique_ptr<CredentialsReader> credentials_reader = std::make_unique<CredentialsReader>();
     std::unique_ptr<AuthGuard> auth_guard = std::make_unique<AuthGuard>(black_list_handler, credentials_reader,

@@ -32,7 +32,7 @@ std::optional<UserContext> ConnectionHandler::authenticate(const std::shared_ptr
     } catch (const IsBanned &error) {
         std::cout << connection_socket->get_client_ip_address() << "  #############  Login with \""
                   << error.get_user_name() << "\" failed - currently banned" << std::endl;
-        connection_socket->send(error.what());
+        connection_socket->send("BAN\n");
     }
     return std::nullopt;
 }

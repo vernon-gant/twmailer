@@ -6,7 +6,7 @@ class BlackListHandler {
 private:
     static const std::string BAN_DIRECTORY;
 
-    static std::string get_user_file(const std::string &user_name, const std::string &client_address);
+    static std::string get_user_ban_file(const std::string &user_name, const std::string &client_address);
 
 public:
     static int get_bans_amount(const std::string &user_name, const std::string &client_address);

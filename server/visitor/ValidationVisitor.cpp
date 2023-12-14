@@ -52,7 +52,7 @@ void ValidationVisitor::validate_single_message_command(const std::string &comma
 
     std::string user_directory = _file_system_utils->get_user_directory(user_name);
 
-    if (!fs::exists(user_directory)) throw ValidationError("Validation error : there are no messages in your inbox yet...");
+    if (!fs::exists(user_directory) || fs::is_empty(user_directory)) throw ValidationError("Validation error : there are no messages in your inbox yet...");
 
     std::string message_file = user_directory + "/message_" + std::to_string(message_number);
 

@@ -21,7 +21,7 @@ std::unique_ptr<Command> CommandFactory::create(std::string &message, const User
 
 std::string CommandFactory::join(const std::vector<std::string> &strings, const std::string &delimiter) {
     std::ostringstream oss;
-    for (size_t i = 0; i < strings.size(); ++i) {
+    for (size_t i = 0; i < strings.size() - 1; ++i) {
         if (i > 0) oss << delimiter;
         oss << strings[i];
     }

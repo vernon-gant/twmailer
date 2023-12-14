@@ -59,7 +59,7 @@ std::string handleDelCommand() {
 
 std::string formatMail(const Mail &mail) {
     std::string mailStr =
-            "SEND\n" + mail.receiver + "\n" + mail.subject + "\n" + mail.message + "\n.\n";
+            "SEND\n" + mail.receiver + "\n" + mail.subject + "\n" + mail.message + ".\n";
     return mailStr;
 }
 

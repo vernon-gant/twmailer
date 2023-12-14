@@ -11,6 +11,7 @@ public:
     }
 
 public:
-    explicit IsBanned(const std::string &arg) : runtime_error(arg) {}
+    explicit IsBanned(const std::string &arg, const std::string &user_name) : runtime_error(arg),
+                                                                              _user_name(user_name) {}
 
 };

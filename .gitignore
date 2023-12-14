@@ -2,3 +2,4 @@
 cmake-build-debug
 test
 client_input
+blacklist
