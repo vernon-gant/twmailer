@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+std::mutex BlackListHandler::file_mutex;
+
 const std::string BlackListHandler::BAN_DIRECTORY = "./blacklist";
 
 bool BlackListHandler::is_banned(const std::string &user_name, const std::string &client_address) {
@@ -13,13 +15,23 @@ bool BlackListHandler::is_banned(const std::string &user_name, const std::string
 }
 
 void BlackListHandler::ban(const std::string &user_name, const std::string &client_address) {
+    std::lock_guard<std::mutex> lock(file_mutex);
     try {
-        std::ofstream file_stream(get_user_ban_file(user_name, client_address), std::ios::trunc);
+        std::string ban_file_path = get_user_ban_file(user_name, client_address);
+        std::ofstream file_stream(ban_file_path, std::ios::trunc);
         if (!file_stream.is_open()) throw InternalServerError("Internal Server Error: Failed to open ban file for writing...");
 
         int current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         file_stream << "3\n" << current_time << std::endl;
         file_stream.close();
+
+        std::thread([ban_file_path]() {
+            std::this_thread::sleep_for(std::chrono::seconds(60));
+            if (fs::exists(ban_file_path)) {
+                fs::remove(ban_file_path);
+            }
+        }).detach();
+
     } catch (const std::ofstream::failure &exception) {
         throw InternalServerError("Internal Server error : failed to write ban to the file...");
     }
@@ -27,6 +39,7 @@ void BlackListHandler::ban(const std::string &user_name, const std::string &clie
 
 
 void BlackListHandler::increase_wrong_tries(const std::string &user_name, const std::string &client_address) {
+    std::lock_guard<std::mutex> lock(file_mutex);
     try {
         if (!fs::exists(BAN_DIRECTORY)) fs::create_directory(BAN_DIRECTORY);
         int bans_amount = get_bans_amount(user_name, client_address);

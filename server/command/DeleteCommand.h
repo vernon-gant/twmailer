@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include "Command.h"
 #include "utils/FileSystemUtils.h"
 
@@ -7,6 +8,7 @@ class DeleteCommand : public Command {
 private:
     const int _message_number;
     std::shared_ptr<FileSystemUtils> _file_system_utils;
+    static std::mutex file_mutex;
 
     static void reorder_message_files(const std::string& user_directory, int deleted_message_number);
 public:

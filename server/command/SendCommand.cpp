@@ -9,8 +9,11 @@
 
 namespace fs = std::filesystem;
 
+std::mutex SendCommand::file_mutex;
+
 void SendCommand::execute() {
     try {
+        std::lock_guard<std::mutex> lock(file_mutex);
         std::string user_directory = _file_system_utils->get_user_directory(_mail.sender);
 
         if (!fs::exists(user_directory) && !fs::create_directory(user_directory))
