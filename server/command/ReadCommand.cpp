@@ -5,6 +5,7 @@
 #include "../visitor/CommandVisitor.h"
 #include "utils/Environment.h"
 #include "exceptions/InternalServerError.h"
+#include <sstream>
 
 namespace fs = std::filesystem;
 

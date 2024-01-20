@@ -5,11 +5,16 @@
 #include <filesystem>
 #include <sstream>
 #include <fstream>
+#include <mutex>
 #include <utility>
 
 namespace fs = std::filesystem;
 
+std::mutex SendCommand::send_mutex; // Define the static mutex
+
 void SendCommand::execute() {
+    std::lock_guard<std::mutex> guard(send_mutex);  // Locks the mutex here
+
     try {
         std::string user_directory = _file_system_utils->get_user_directory(_mail.sender);
 
@@ -30,6 +35,8 @@ void SendCommand::execute() {
     } catch (const std::exception &exception) {
         throw InternalServerError("Internal Server error : I/O exception");
     }
+
+    // The mutex is automatically released when the lock_guard goes out of scope
 }
 
 void SendCommand::accept(const CommandVisitor &visitor) const {
