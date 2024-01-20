@@ -1,10 +1,13 @@
 #include "DeleteCommand.h"
-
 #include <utility>
+#include <filesystem>
 #include "../visitor/CommandVisitor.h"
 #include "exceptions/InternalServerError.h"
 
+std::mutex DeleteCommand::delete_mutex;
+
 void DeleteCommand::execute() {
+    std::lock_guard<std::mutex> guard(delete_mutex);
     const std::string &user_directory = _file_system_utils->get_user_directory(_user_context.user_name);
     const std::string &file_path = user_directory + "/message_" + std::to_string(_message_number);
     try {
