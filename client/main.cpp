@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <regex>
 
 #define PORT 9999
 
@@ -149,6 +150,45 @@ std::string receiveServerResponse(int socket) {
     return std::string(buffer.data());
 }
 
+bool is_valid_ip_address(const std::string& address) {
+    const std::regex ip_regex(R"(^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$)");
+    std::smatch match;
+
+    if (std::regex_match(address, match, ip_regex)) {
+        if (match.size() == 5) {
+            for (size_t i = 1; i <= 4; ++i) {
+                int octet = std::stoi(match[i].str());
+                if (octet < 0 || octet > 255) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool is_valid_port(int port) {
+    if (port < 0 || port > 65535) return false;
+    if (port <= 1023) return false;
+    return true;
+}
+
+std::pair<std::string,int> get_address_info_from_command_args(int argc, char **argv) {
+    if (argc < 3) throw std::invalid_argument("Invalid amount of arguments! You must provide ip ip_address and address_port");
+    std::string ip_address = argv[1];
+    if (!is_valid_ip_address(ip_address)) throw std::invalid_argument("Invalid IP ip_address format! Please, try again...");
+    int address_port;
+    try {
+        address_port = std::stoi(argv[2]);
+    } catch(const std::invalid_argument&) {
+        throw std::invalid_argument("Invalid ip port format, must be a number! Please, try again...");
+    }
+    if (!is_valid_port(address_port)) throw std::invalid_argument("Invalid ip port, must be in range from 1023 to 65534 to avoid well known ports");
+    return std::make_pair(ip_address, address_port);
+}
+
 int main(int argc, char **argv) {
     std::cout << "\nInitializing email client...\n\n";
     int create_socket;
@@ -161,10 +201,12 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    std::pair<std::string,int> address_info = get_address_info_from_command_args(argc,argv);
+
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_port = htons(PORT);
-    inet_aton(argc < 2 ? "127.0.0.1" : argv[1], &address.sin_addr);
+    address.sin_port = htons(address_info.second);
+    inet_aton(address_info.first.c_str(), &address.sin_addr);
 
     if (connect(create_socket, (struct sockaddr *) &address, sizeof(address)) == -1) {
         perror("Connect error - no server available");
