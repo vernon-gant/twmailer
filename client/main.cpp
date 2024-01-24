@@ -176,9 +176,9 @@ bool is_valid_port(int port) {
 }
 
 std::pair<std::string,int> get_address_info_from_command_args(int argc, char **argv) {
-    if (argc < 3) throw std::invalid_argument("Invalid amount of arguments! You must provide ip ip_address and address_port");
+    if (argc < 3) throw std::invalid_argument("Invalid amount of arguments! You must provide ip address and address port");
     std::string ip_address = argv[1];
-    if (!is_valid_ip_address(ip_address)) throw std::invalid_argument("Invalid IP ip_address format! Please, try again...");
+    if (!is_valid_ip_address(ip_address)) throw std::invalid_argument("Invalid IP address format! Please, try again...");
     int address_port;
     try {
         address_port = std::stoi(argv[2]);
